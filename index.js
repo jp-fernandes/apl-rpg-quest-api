@@ -3,14 +3,13 @@ const app = express();
 const port = 3000;
 
 const healthCheckRouter = require("./health-check");
-// const usersRouter = require('./src/routes/users');
+const usersRouter = require('./src/routes/users');
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
-
 app.use("/health-check", healthCheckRouter);
-// app.use('/users', usersRouter);
+app.use("/users", usersRouter);
 app.use(express.json());
 
 // Inicie o servidor
