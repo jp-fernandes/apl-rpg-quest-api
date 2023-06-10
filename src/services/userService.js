@@ -1,14 +1,10 @@
-const admin = require("firebase-admin");
+const firebase = require("../firebase/firebaseService");
 
-admin.initializeApp({
-  credential: admin.credential.cert("serviceAccountKey.json")
-});
-
-const db = admin.firestore();
+const usersCollectionDB = firebase.firestore().collection("Users");
 
 async function getUsers() {
   try {
-    const snapshot = await db.collection("Users").get();
+    const snapshot = await usersCollectionDB.get();
     const users = snapshot.docs.map(doc => ({
       ...doc.data(),
       uid: doc.id
@@ -20,45 +16,81 @@ async function getUsers() {
   }
 }
 
+async function getUserByCpf(cpf) {
+  try {
+    const usersRef = usersCollectionDB;
+    const querySnapshot = await usersRef.where("cpf", "==", cpf).get();
+
+    if (querySnapshot.empty) {
+      return null;
+    }
+
+    const user = querySnapshot.docs[0].data();
+    return user;
+  } catch (error) {
+    console.error("Erro ao obter usuário:", error);
+    throw error;
+  }
+}
+
 async function createUser(req) {
   const newUser = req.body;
-  console.log("Request ", newUser);
-  // const user = {
-  //   cpf: newUser.cpf,
-  //   name: newUser.name,
-  //   surname: newUser.surname,
-  //   age: newUser.age
-  // };
 
   const user = {
-    cpf: "12345678902",
-    name: "Paulo teste",
-    surname: "Souza",
-    age: 29
+    cpf: newUser.cpf,
+    name: newUser.name,
+    surname: newUser.surname,
+    age: newUser.age
   };
 
-  const usersRef = admin.firestore().collection("Users");
+  try {
+    const usersRef = usersCollectionDB;
+    const querySnapshot = await usersRef.where("cpf", "==", user.cpf).get();
 
-  const querySnapshot = await usersRef.where("cpf", "==", user.cpf).get();
+    if (!querySnapshot.empty) {
+      const error = {
+        message: "Usuário já existe",
+        code: 409
+      };
+      throw error;
+    }
 
-  if (!querySnapshot.empty) {
-    res.status(409).json({ error: "Usuário já existe" });
-    return;
-    //To-DO - Fazer retornar o erro correto.
+    const docRef = await usersRef.add(user);
+
+    return { message: "Novo usuário criado com sucesso", userId: docRef.id };
+  } catch (error) {
+    throw error || new Error("Erro ao criar novo usuário");
   }
-
-  usersRef
-    .add(user)
-    .then((docRef) => {
-      res.status(201).json({ message: "Novo usuário criado com sucesso", userId: docRef.id });
-    })
-    .catch((error) => {
-      console.error("Erro ao criar novo usuário:", error);
-      res.status(500).json({ error: "Erro ao criar novo usuário" });
-    });
 }
+
+async function updateUserByCpf(cpf, updatedData) {
+  try {
+    const usersRef = usersCollectionDB;
+    const querySnapshot = await usersRef.where("cpf", "==", cpf).get();
+
+    if (querySnapshot.empty) {
+      const error = {
+        message: "Usuário não encontrado",
+        code: 404
+      };
+      throw error;
+    }
+
+    const docId = querySnapshot.docs[0].id;
+    const userRef = usersRef.doc(docId);
+
+    await userRef.update(updatedData);
+
+    return { message: "Dados do usuário atualizados com sucesso" };
+  } catch (error) {
+    throw error || new Error("Erro ao atualizar dados do usuário");
+  }
+}
+
 
 module.exports = {
   getUsers,
-  createUser
+  getUserByCpf,
+  createUser,
+  updateUserByCpf
 };

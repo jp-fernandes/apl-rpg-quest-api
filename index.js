@@ -8,9 +8,11 @@ const usersRouter = require('./src/routes/users');
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
+app.use(express.json());
+
+//Endpoints
 app.use("/health-check", healthCheckRouter);
 app.use("/users", usersRouter);
-app.use(express.json());
 
 // Inicie o servidor
 app.listen(port, () => {
