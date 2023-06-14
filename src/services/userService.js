@@ -16,10 +16,10 @@ async function getUsers() {
   }
 }
 
-async function getUserByCpf(cpf) {
+async function getUserByEmail(email) {
   try {
     const usersRef = usersCollectionDB;
-    const querySnapshot = await usersRef.where("cpf", "==", cpf).get();
+    const querySnapshot = await usersRef.where("email", "==", email).get();
 
     if (querySnapshot.empty) {
       return null;
@@ -37,15 +37,17 @@ async function createUser(req) {
   const newUser = req.body;
 
   const user = {
-    cpf: newUser.cpf,
+    email: newUser.email,
     name: newUser.name,
     surname: newUser.surname,
-    age: newUser.age
+    gender: newUser.gender,
+    city: newUser.city,
+    state: newUser.state,
   };
 
   try {
     const usersRef = usersCollectionDB;
-    const querySnapshot = await usersRef.where("cpf", "==", user.cpf).get();
+    const querySnapshot = await usersRef.where("email", "==", user.email).get();
 
     if (!querySnapshot.empty) {
       const error = {
@@ -63,10 +65,10 @@ async function createUser(req) {
   }
 }
 
-async function updateUserByCpf(cpf, updatedData) {
+async function updateUserByEmail(email, updatedData) {
   try {
     const usersRef = usersCollectionDB;
-    const querySnapshot = await usersRef.where("cpf", "==", cpf).get();
+    const querySnapshot = await usersRef.where("email", "==", email).get();
 
     if (querySnapshot.empty) {
       const error = {
@@ -90,7 +92,7 @@ async function updateUserByCpf(cpf, updatedData) {
 
 module.exports = {
   getUsers,
-  getUserByCpf,
+  getUserByEmail,
   createUser,
-  updateUserByCpf
+  updateUserByEmail
 };
