@@ -38,6 +38,7 @@ async function createUser(req) {
 
   const user = {
     email: newUser.email,
+    age: newUser.age,
     name: newUser.name,
     surname: newUser.surname,
     gender: newUser.gender,
