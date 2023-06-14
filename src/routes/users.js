@@ -12,17 +12,17 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get user by cpf
-router.get("/:cpf", async (req, res) => {
-  const cpf = req.params.cpf;
+// Get user by email
+router.get("/:email", async (req, res) => {
+  const email = req.params.email;
 
   try {
-    const user = await userService.getUserByCpf(cpf);
+    const user = await userService.getUserByEmail(email);
 
     if (user) {
       res.json(user);
     } else {
-      res.status(404).json({ error: "Usuário não encontrado" });
+      res.status(200).json({ message: "Usuário não encontrado", code: 404 });
     }
   } catch (error) {
     console.error("Erro ao obter detalhes do usuário:", error);
@@ -42,10 +42,10 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Update user by Cpf
+// Update user by Email
 router.put("/", async (req, res) => {
   const user = req.body;
-  const cpf = user.cpf;
+  const email = user.email;
 
   const updatedData = {
     name: user.name,
@@ -54,7 +54,7 @@ router.put("/", async (req, res) => {
   };
 
   try {
-    const result = await userService.updateUserByCpf(cpf, updatedData);
+    const result = await userService.updateUserByEmail(email, updatedData);
     res.json(result);
   } catch (error) {
     const errorMessage = error.message || "Erro ao atualizar o usuário";
