@@ -35,6 +35,7 @@ async function getUserByEmail(email) {
 
 async function createUser(req) {
   const newUser = req.body;
+  const currentDate = new Date().toISOString();
 
   const user = {
     email: newUser.email,
@@ -44,6 +45,7 @@ async function createUser(req) {
     gender: newUser.gender,
     city: newUser.city,
     state: newUser.state,
+    createdDate: currentDate
   };
 
   try {
