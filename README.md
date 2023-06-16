@@ -3,7 +3,7 @@
 [Comandos instalar e rodar o projeto](#projeto)
 
 * 1 - npm i
-* 2 - npm start
+* 2 - npm start ou npm start for use nodemon
 
 [Tecnologias utilizadas](#tecnologias-utilizadas)
 
