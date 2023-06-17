@@ -2,6 +2,16 @@ const express = require("express");
 const router = express.Router();
 const userService = require("../services/userService");
 
+// Get Metrics
+router.get("/metrics", async (req, res) => {
+  try {
+    const metrics = await userService.getUserMetrics();
+    res.json(metrics);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao obter métricas" });
+  }
+});
+
 // Get users
 router.get("/", async (req, res) => {
   try {
