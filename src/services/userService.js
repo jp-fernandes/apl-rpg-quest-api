@@ -1,8 +1,8 @@
 const firebase = require("../firebase/firebaseService");
 const usersCollectionDB = firebase.firestore().collection("Users");
 const moment = require("moment-timezone");
-const currentDate = moment().tz("America/Sao_Paulo").format();
-const { getOperatingSystem, formatDate} = require("../utils/utils");
+const currentDate = moment().tz("America/Sao_Paulo");
+const { getOperatingSystem, formatDate } = require("../utils/utils");
 
 async function getUsers() {
   try {
@@ -47,6 +47,7 @@ async function getUserByEmail(email) {
 async function createUser(req) {
   const userAgent = req.headers["user-agent"];
   const operatingSystem = getOperatingSystem(userAgent);
+  const currentHour = currentDate.format("HH:mm");
 
   const newUser = req.body;
 
@@ -59,6 +60,7 @@ async function createUser(req) {
     city: newUser.city,
     state: newUser.state,
     createdDate: currentDate,
+    createdHour: currentHour,
     operatingSystem: operatingSystem,
     numberOfVisits: 1,
   };
@@ -164,8 +166,8 @@ async function getUserMetrics(req, res) {
         totalVisits += user.numberOfVisits;
       }
 
-      if (user.createdDate && (!lastCreatedDate || user.createdDate > lastCreatedDate)) {
-        lastCreatedDate = user.createdDate;
+      if (user.createdDate && (!lastCreatedDate || user.createdDate.toDate() > lastCreatedDate)) {
+        lastCreatedDate = user.createdDate.toDate();
       }
     });
 

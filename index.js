@@ -5,6 +5,7 @@ const port = process.env.PORT || 3000;
 
 const healthCheckRouter = require("./health-check");
 const usersRouter = require('./src/routes/users');
+const subjectsRouter = require('./src/routes/subjects');
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -15,6 +16,7 @@ app.use(cors());
 // Endpoints
 app.use("/health-check", healthCheckRouter);
 app.use("/users", usersRouter);
+app.use("/subjects", subjectsRouter);
 
 // Middleware de tratamento de erros
 app.use((err, req, res, next) => {
