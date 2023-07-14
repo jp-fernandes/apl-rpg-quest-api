@@ -1,5 +1,28 @@
 const firebase = require("../firebase/firebaseService");
 const activitiesCollectionDB = firebase.firestore().collection("CompletedActivities");
+const moment = require("moment-timezone");
+const currentDate = moment().tz("America/Sao_Paulo");
+
+async function saveStatusActivity(req) {
+
+  const payload = req.body;
+
+  const obj = {
+    email: payload.email,
+    score: payload.score,
+    subject: payload.subject,
+    completionDate: currentDate,
+    completed: true
+  };
+
+  try {
+    const docRef = await activitiesCollectionDB.add(obj);
+    return { message: "Novo status criado com sucesso", statusId: docRef.id };
+  } catch (error) {
+    console.error("Erro ao salvar o status do usuário: ", error);
+    throw error;
+  }
+}
 
 async function checkSubjectCompletion(email) {
   try {
@@ -11,10 +34,18 @@ async function checkSubjectCompletion(email) {
     }
 
     const userDoc = querySnapshot.docs[0];
-    const user = userDoc.data();
-    const completed = user.completed || false; // Obtém o valor do campo "completed", ou assume false caso não exista
+    const response = userDoc.data();
 
-    return { completed };
+    if (response.completionDate) {
+      const completionDate = new Date(
+        response.completionDate._seconds * 1000 +
+          response.completionDate._nanoseconds / 1000000
+      );
+
+      response.completionDate = completionDate.toISOString();
+    }
+
+    return response;
   } catch (error) {
     console.error("Erro ao obter status de tarefa do usuário: ", error);
     throw error;
@@ -23,4 +54,5 @@ async function checkSubjectCompletion(email) {
 
 module.exports = {
   checkSubjectCompletion,
+  saveStatusActivity
 };
