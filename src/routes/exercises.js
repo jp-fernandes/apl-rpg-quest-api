@@ -2,9 +2,11 @@ const express = require("express");
 const router = express.Router();
 const exercisesService = require("../services/exercisesService");
 
-router.get("/", async (req, res) => {
+// Get Exercises by subject
+router.get("/:subject", async (req, res) => {
+  const subject = req.params.subject;
   try {
-    const questions = await exercisesService.getQuestionsFromFirebase();
+    const questions = await exercisesService.getQuestionsFromFirebase(subject);
     res.json(questions);
   } catch (error) {
     const errorMessage = error.message || "Erro ao obter as questões";

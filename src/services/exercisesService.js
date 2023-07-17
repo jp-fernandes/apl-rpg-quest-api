@@ -1,10 +1,10 @@
 const firebase = require("../firebase/firebaseService");
 const exercisesCollectionDB = firebase.firestore().collection("Exercises");
 
-async function getQuestionsFromFirebase() {
+async function getQuestionsFromFirebase(subject) {
   try {
     const collectionRef = exercisesCollectionDB;
-    const snapshot = await collectionRef.get();
+    const snapshot = await collectionRef.where("subject", "==", subject).get();
 
     const questions = [];
 
@@ -12,6 +12,7 @@ async function getQuestionsFromFirebase() {
       const questionData = doc.data();
       const question = {
         subject: questionData.subject,
+        subTopic: questionData.subTopic,
         text: questionData.text,
         options: questionData.options,
         correctAnswer: questionData.correctAnswer,
@@ -22,15 +23,15 @@ async function getQuestionsFromFirebase() {
 
     shuffleArray(questions);
 
-    const uniqueSubjects = Array.from(new Set(questions.map((question) => question.subject)));
+    const uniqueSubTopics = Array.from(new Set(questions.map((question) => question.subTopic)));
 
     const filteredQuestions = [];
-    const selectedSubjects = [];
+    const selectedSubTopics = [];
 
     for (const question of questions) {
-      if (!selectedSubjects.includes(question.subject)) {
+      if (!selectedSubTopics.includes(question.subTopic)) {
         filteredQuestions.push(question);
-        selectedSubjects.push(question.subject);
+        selectedSubTopics.push(question.subTopic);
       }
 
       if (filteredQuestions.length === 4) {
