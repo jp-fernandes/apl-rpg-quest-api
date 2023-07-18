@@ -8,6 +8,7 @@ const usersRouter = require('./src/routes/users');
 const subjectsRouter = require('./src/routes/subjects');
 const feedbackRouter = require('./src/routes/feedback');
 const exercisesRouter = require('./src/routes/exercises');
+const performanceRouter = require('./src/routes/performance');
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
@@ -21,6 +22,7 @@ app.use("/users", usersRouter);
 app.use("/subjects", subjectsRouter);
 app.use("/feedback", feedbackRouter);
 app.use("/exercises", exercisesRouter);
+app.use("/performance", performanceRouter);
 
 // Middleware de tratamento de erros
 app.use((err, req, res, next) => {
