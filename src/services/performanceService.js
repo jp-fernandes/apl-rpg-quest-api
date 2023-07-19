@@ -29,7 +29,6 @@ async function savePerformanceData(req) {
     .get();
 
   const exam = payload.exam || 0;
-  const examDone = payload.exam ? true : false;
   const scoreTotal = payload.exercises + exam;
 
   const performanceData = {
@@ -37,7 +36,7 @@ async function savePerformanceData(req) {
     progress: payload.progress,
     exercises: payload.exercises,
     exam: exam,
-    examDone: examDone,
+    examDone: payload.examDone || false,
     scoreTotal: scoreTotal,
   };
 
