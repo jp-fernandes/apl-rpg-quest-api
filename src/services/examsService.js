@@ -1,9 +1,9 @@
 const firebase = require("../firebase/firebaseService");
-const exercisesCollectionDB = firebase.firestore().collection("Exercises");
+const examsCollectionDB = firebase.firestore().collection("Exams");
 
-async function getQuestionsFromFirebase(subject) {
+async function getQuestionsExamsFromFirebase(subject) {
   try {
-    const collectionRef = exercisesCollectionDB;
+    const collectionRef = examsCollectionDB;
     const snapshot = await collectionRef.where("subject", "==", subject).get();
 
     const questions = [];
@@ -25,23 +25,27 @@ async function getQuestionsFromFirebase(subject) {
 
     const uniqueSubTopics = Array.from(new Set(questions.map((question) => question.subTopic)));
 
-    const filteredQuestions = [];
-    const selectedSubTopics = [];
+    const filteredQuestions = questions.filter((question) => uniqueSubTopics.includes(question.subTopic));
 
-    for (const question of questions) {
-      if (!selectedSubTopics.includes(question.subTopic)) {
-        filteredQuestions.push(question);
-        selectedSubTopics.push(question.subTopic);
-      }
+    const remainingQuestions = questions.filter((question) => !uniqueSubTopics.includes(question.subTopic));
 
-      if (filteredQuestions.length === 4) {
-        break;
-      }
+    const remainingCount = Math.min(2, remainingQuestions.length);
+
+    const randomQuestions = remainingQuestions.sort(() => 0.5 - Math.random()).slice(0, remainingCount);
+
+    const result = [...filteredQuestions, ...randomQuestions];
+
+    if (result.length < 6) {
+      const neededCount = 6 - result.length;
+      const remainingSubTopics = new Set(questions.map((question) => question.subTopic));
+      remainingSubTopics.delete(...uniqueSubTopics);
+      const randomRemaining = questions.filter((question) => remainingSubTopics.has(question.subTopic)).sort(() => 0.5 - Math.random()).slice(0, neededCount);
+      result.push(...randomRemaining);
     }
 
-    return filteredQuestions;
+    return result.slice(0, 6);
   } catch (error) {
-    throw error || new Error("Erro ao buscar os exercícios");
+    throw error || new Error("Erro ao buscar as questões");
   }
 }
 
@@ -55,7 +59,7 @@ function shuffleArray(array) {
 
 async function countSubTopicsBySubject() {
   try {
-    const collectionRef = exercisesCollectionDB;
+    const collectionRef = examsCollectionDB;
     const snapshot = await collectionRef.get();
 
     const countMap = new Map();
@@ -95,9 +99,9 @@ async function countSubTopicsBySubject() {
   }
 }
 
-async function createQuestion(question) {
+async function createExamQuestion(question) {
   try {
-    const docRef = await exercisesCollectionDB.add(question);
+    const docRef = await examsCollectionDB.add(question);
     return { message: "Questão criada com sucesso", questionId: docRef.id };
   } catch (error) {
     throw error || new Error("Erro ao criar a questão");
@@ -105,7 +109,7 @@ async function createQuestion(question) {
 }
 
 module.exports = {
-  getQuestionsFromFirebase,
+  getQuestionsExamsFromFirebase,
   countSubTopicsBySubject,
-  createQuestion,
+  createExamQuestion,
 };
