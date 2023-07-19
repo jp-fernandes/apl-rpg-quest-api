@@ -1,34 +1,24 @@
 const express = require("express");
-const cors = require('cors');
+const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
 
-const healthCheckRouter = require("./health-check");
-const usersRouter = require('./src/routes/users');
-const subjectsRouter = require('./src/routes/subjects');
-const feedbackRouter = require('./src/routes/feedback');
-const exercisesRouter = require('./src/routes/exercises');
-const performanceRouter = require('./src/routes/performance');
+const routes = require("./routes");
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 app.use(express.json());
 app.use(cors());
-
-// Endpoints
-app.use("/health-check", healthCheckRouter);
-app.use("/users", usersRouter);
-app.use("/subjects", subjectsRouter);
-app.use("/feedback", feedbackRouter);
-app.use("/exercises", exercisesRouter);
-app.use("/performance", performanceRouter);
 
 // Middleware de tratamento de erros
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Ocorreu um erro no servidor" });
 });
+
+// Rotas
+app.use(routes);
 
 const server = app.listen(port, () => {
   console.log(`A API está rodando em http://localhost:${port}`);
