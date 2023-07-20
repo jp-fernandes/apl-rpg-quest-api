@@ -81,7 +81,22 @@ async function savePerformanceData(req) {
   }
 }
 
+async function deletePerformanceData(email) {
+  try {
+    await performanceCollectionDB.doc(email).delete();
+    return {
+      message: "Dados de desempenho excluídos com sucesso",
+      performanceId: email,
+      deleted: true
+    };
+  } catch (error) {
+    console.error("Erro ao excluir os dados de desempenho: ", error);
+    throw error;
+  }
+}
+
 module.exports = {
   getPerformanceData,
   savePerformanceData,
+  deletePerformanceData
 };

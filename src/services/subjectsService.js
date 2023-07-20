@@ -1,5 +1,7 @@
 const firebase = require("../firebase/firebaseService");
-const activitiesCollectionDB = firebase.firestore().collection("CompletedActivities");
+const activitiesCollectionDB = firebase
+  .firestore()
+  .collection("CompletedActivities");
 const moment = require("moment-timezone");
 const currentDate = moment().tz("America/Sao_Paulo");
 
@@ -12,10 +14,15 @@ async function saveStatusActivity(req) {
       .where("subject", "==", payload.subject)
       .get();
 
+    const scoreExam = payload.scoreExam || 0;
+    const examDone = payload.examDone || false;
+
     if (querySnapshot.empty) {
       const obj = {
         email: payload.email,
-        score: payload.score,
+        scoreExercises: payload.scoreExercises,
+        scoreExam: scoreExam,
+        examDone: examDone,
         subject: payload.subject,
         completionDate: currentDate,
         completed: true,
@@ -26,12 +33,17 @@ async function saveStatusActivity(req) {
     } else {
       const docSnapshot = querySnapshot.docs[0];
       await docSnapshot.ref.update({
-        score: payload.score,
+        scoreExercises: payload.scoreExercises,
+        scoreExam: scoreExam,
+        examDone: examDone,
         completionDate: currentDate,
-        completed: true,
+        completed: examDone ? false : true
       });
 
-      return { message: "Status atualizado com sucesso", statusId: docSnapshot.id };
+      return {
+        message: "Status atualizado com sucesso",
+        statusId: docSnapshot.id,
+      };
     }
   } catch (error) {
     console.error("Erro ao salvar/atualizar o status do usuário: ", error);
@@ -67,7 +79,29 @@ async function checkSubjectCompletion(email) {
   }
 }
 
+async function deleteActivityByEmail(email) {
+  try {
+    const querySnapshot = await activitiesCollectionDB
+      .where("email", "==", email)
+      .get();
+
+    if (!querySnapshot.empty) {
+      querySnapshot.forEach((doc) => {
+        doc.ref.delete();
+      });
+
+      return { message: "Registro excluído com sucesso para o email: " + email, deleted: true };
+    } else {
+      return { message: "Nenhuma atividade encontrada para o email: " + email, noData: true };
+    }
+  } catch (error) {
+    console.error("Erro ao excluir registro por email: ", error);
+    throw error;
+  }
+}
+
 module.exports = {
   checkSubjectCompletion,
-  saveStatusActivity
+  saveStatusActivity,
+  deleteActivityByEmail
 };

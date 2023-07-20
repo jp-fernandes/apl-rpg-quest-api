@@ -27,4 +27,15 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Delete Performance by Email
+router.delete("/performance-data/:email", async (req, res) => {
+  const email = req.params.email;
+  try {
+    const response = await performanceService.deletePerformanceData(email);
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao excluir registro por email" });
+  }
+});
+
 module.exports = router;

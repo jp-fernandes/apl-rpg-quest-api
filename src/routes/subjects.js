@@ -25,4 +25,15 @@ router.post("/status", async (req, res) => {
   }
 });
 
+// Delete Activities by Email
+router.delete("/activities/:email", async (req, res) => {
+  const email = req.params.email;
+  try {
+    const response = await subjectsService.deleteActivityByEmail(email);
+    res.json(response);
+  } catch (error) {
+    res.status(500).json({ error: "Erro ao excluir registro por email" });
+  }
+});
+
 module.exports = router;
