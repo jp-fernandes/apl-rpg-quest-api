@@ -25,7 +25,7 @@ async function saveStatusActivity(req) {
         examDone: examDone,
         subject: payload.subject,
         completionDate: currentDate,
-        completed: true,
+        completedForExam: true,
       };
 
       const docRef = await activitiesCollectionDB.add(obj);
@@ -37,7 +37,7 @@ async function saveStatusActivity(req) {
         scoreExam: scoreExam,
         examDone: examDone,
         completionDate: currentDate,
-        completed: examDone ? false : true
+        completedForExam: examDone ? false : true
       });
 
       return {
