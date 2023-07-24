@@ -1,5 +1,6 @@
 const firebase = require("../firebase/firebaseService");
 const performanceCollectionDB = firebase.firestore().collection("Performance");
+const performanceHistoryCollectionDB = firebase.firestore().collection("PerformanceHistory");
 
 async function getPerformanceData(email) {
   try {
@@ -40,44 +41,39 @@ async function savePerformanceData(req) {
     scoreTotal: scoreTotal,
   };
 
-  if (existingDocSnapshot.exists) {
-    const existingData = existingDocSnapshot.data();
-    let performanceArray = existingData.performance || [];
+  try {
+    if (existingDocSnapshot.exists) {
+      const existingData = existingDocSnapshot.data();
+      let performanceArray = existingData.performance || [];
 
-    const existingSubjectIndex = performanceArray.findIndex(
-      (item) => item.subject === payload.subject
-    );
-    if (existingSubjectIndex !== -1) {
-      performanceArray[existingSubjectIndex] = performanceData;
+      const existingSubjectIndex = performanceArray.findIndex(
+        (item) => item.subject === payload.subject
+      );
+      if (existingSubjectIndex !== -1) {
+        performanceArray[existingSubjectIndex] = performanceData;
+      } else {
+        performanceArray.push(performanceData);
+      }
+
+      await performanceCollectionDB.doc(payload.email).set({ performance: performanceArray });
     } else {
-      performanceArray.push(performanceData);
+      await performanceCollectionDB.doc(payload.email).set({ performance: [performanceData] });
     }
 
     try {
-      await performanceCollectionDB
-        .doc(payload.email)
-        .set({ performance: performanceArray });
-      return {
-        message: "Dados de desempenho atualizados com sucesso",
-        performanceId: payload.email,
-      };
+      await performanceHistoryCollectionDB.doc(payload.email).set({ performance: [performanceData] });
     } catch (error) {
-      console.error("Erro ao atualizar os dados de desempenho: ", error);
+      console.error("Erro ao salvar os dados de desempenho no histórico: ", error);
       throw error;
     }
-  } else {
-    try {
-      await performanceCollectionDB
-        .doc(payload.email)
-        .set({ performance: [performanceData] });
-      return {
-        message: "Novos dados de desempenho criados com sucesso",
-        performanceId: payload.email,
-      };
-    } catch (error) {
-      console.error("Erro ao salvar os dados de desempenho: ", error);
-      throw error;
-    }
+
+    return {
+      message: "Dados de desempenho salvos com sucesso",
+      performanceId: payload.email,
+    };
+  } catch (error) {
+    console.error("Erro ao salvar os dados de desempenho: ", error);
+    throw error;
   }
 }
 
