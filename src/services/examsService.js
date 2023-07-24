@@ -108,8 +108,28 @@ async function createExamQuestion(question) {
   }
 }
 
+async function deleteQuestionsBySubTopic(subTopic) {
+  try {
+    const collectionRef = examsCollectionDB;
+    const snapshot = await collectionRef.where("subTopic", "==", subTopic).get();
+
+    const batch = firebase.firestore().batch();
+
+    snapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    await batch.commit();
+
+    return { message: `All documents with subTopic '${subTopic}' have been deleted` };
+  } catch (error) {
+    throw error || new Error("Error deleting documents");
+  }
+}
+
 module.exports = {
   getQuestionsExamsFromFirebase,
   countSubTopicsBySubject,
   createExamQuestion,
+  deleteQuestionsBySubTopic
 };

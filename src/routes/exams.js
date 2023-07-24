@@ -37,4 +37,17 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Delete Exams by subTopic
+router.delete("/:subTopic", async (req, res) => {
+  const subTopic = req.params.subTopic;
+  try {
+    const result = await examsService.deleteQuestionsBySubTopic(subTopic);
+    res.json(result);
+  } catch (error) {
+    const errorMessage = error.message || "Erro ao excluir as questões";
+    const errorCode = error.code || 500;
+    res.status(errorCode).json({ error: errorMessage, code: errorCode });
+  }
+});
+
 module.exports = router;
