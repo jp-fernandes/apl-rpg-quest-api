@@ -56,15 +56,22 @@ async function savePerformanceData(req) {
       }
 
       await performanceCollectionDB.doc(payload.email).set({ performance: performanceArray });
+
+      try {
+        await performanceHistoryCollectionDB.doc(payload.email).set({ performance: performanceArray });
+      } catch (error) {
+        console.error("Erro ao salvar os dados de desempenho no histórico: ", error);
+        throw error;
+      }
     } else {
       await performanceCollectionDB.doc(payload.email).set({ performance: [performanceData] });
-    }
 
-    try {
-      await performanceHistoryCollectionDB.doc(payload.email).set({ performance: [performanceData] });
-    } catch (error) {
-      console.error("Erro ao salvar os dados de desempenho no histórico: ", error);
-      throw error;
+      try {
+        await performanceHistoryCollectionDB.doc(payload.email).set({ performance: [performanceData] });
+      } catch (error) {
+        console.error("Erro ao salvar os dados de desempenho no histórico: ", error);
+        throw error;
+      }
     }
 
     return {
@@ -76,6 +83,7 @@ async function savePerformanceData(req) {
     throw error;
   }
 }
+
 
 async function deletePerformanceData(email) {
   try {
