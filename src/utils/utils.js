@@ -1,28 +1,27 @@
 function getOperatingSystem(userAgent) {
   userAgent = userAgent.toLowerCase();
 
-  if (
-    userAgent.includes("iphone") ||
-    userAgent.includes("ipad") ||
-    userAgent.includes("ipod")
-  ) {
-    return "iOS";
-  } else if (userAgent.includes("android")) {
-    return "Android";
-  } else if (userAgent.includes("windows")) {
-    return "Windows";
-  } else if (userAgent.includes("mac os") || userAgent.includes("macintosh")) {
-    return "Mac OS";
-  } else if (userAgent.includes("linux")) {
-    return "Linux";
-  } else {
-    return "Unknown";
+  switch (true) {
+    case userAgent.includes("iphone"):
+    case userAgent.includes("ipad"):
+    case userAgent.includes("ipod"):
+      return "iOS";
+    case userAgent.includes("android"):
+      return "Android";
+    case userAgent.includes("windows"):
+      return "Windows";
+    case userAgent.includes("mac os"):
+    case userAgent.includes("macintosh"):
+      return "Mac OS";
+    case userAgent.includes("linux"):
+      return "Linux";
+    default:
+      return "Unknown";
   }
 }
 
 function formatDate(date) {
-  const formattedDate = new Date(date).toLocaleDateString("pt-BR");
-  return formattedDate;
+  return new Date(date).toLocaleDateString("pt-BR");
 }
 
 module.exports = {
